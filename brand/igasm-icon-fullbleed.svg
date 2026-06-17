@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
 <defs>
 <linearGradient id="plate" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2A1018"/><stop offset="0.55" stop-color="#5A1733"/><stop offset="1" stop-color="#3A0F22"/></linearGradient>
-<radialGradient id="candle" cx="512" cy="362" r="300" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E8985E" stop-opacity="0.42"/><stop offset="0.5" stop-color="#E8985E" stop-opacity="0.11"/><stop offset="1" stop-color="#E8985E" stop-opacity="0"/></radialGradient>
+<radialGradient id="candle" cx="512" cy="372" r="360" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E8985E" stop-opacity="0.40"/><stop offset="0.5" stop-color="#E8985E" stop-opacity="0.10"/><stop offset="1" stop-color="#E8985E" stop-opacity="0"/></radialGradient>
 <radialGradient id="emberHalo" cx="512" cy="362" r="116" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F8DCC2" stop-opacity="0.9"/><stop offset="0.45" stop-color="#E9A868" stop-opacity="0.42"/><stop offset="1" stop-color="#E8985E" stop-opacity="0"/></radialGradient>
 <radialGradient id="emberCore" cx="500" cy="349" r="62" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FCEEDD"/><stop offset="0.36" stop-color="#F3C9A8"/><stop offset="0.72" stop-color="#E9A868"/><stop offset="1" stop-color="#E8985E"/></radialGradient>
 </defs>
-<rect width="1024" height="1024" rx="225" fill="url(#plate)"/>
-<rect width="1024" height="1024" rx="225" fill="url(#candle)"/>
+<rect width="1024" height="1024" fill="url(#plate)"/>
+<rect width="1024" height="1024" fill="url(#candle)"/>
 <circle cx="512" cy="362" r="116" fill="url(#emberHalo)"/>
 <path d="M 449 486 Q 512 481 575 486 C 569 497 557 497 551 503 L 551 664 C 555 693 577 698 588 708 Q 512 714 436 708 C 447 698 469 693 473 664 L 473 503 C 467 497 455 497 449 486 Z" fill="#F3EAE6"/>
 <circle cx="512" cy="362" r="58" fill="url(#emberCore)"/>

@@ -1,20 +1,22 @@
-import { Suspense } from "react";
+import React, { Suspense } from "react";
+import { createRoot } from "react-dom/client";
 import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
-import { bgPixelDensity } from "../lib/capability";
 
 /**
- * The warm living gradient the founder loves, now a real 3D animated field
- * (ShaderGradient / react-three-fiber), tuned to the app's plum -> wine -> amber
- * candlelight ramp. The CSS .bg-fallback sits behind it, so if WebGL is
- * unavailable the warm gradient still shows.
+ * Standalone render of ONLY the website's exact warm gradient, for embedding in
+ * the APP via an offline WebView. Same engine + identical params as
+ * src/components/Background.jsx, so the app background is byte-identical to
+ * igasm.in. Built to one self-contained HTML by vite.gradient.config.js.
+ *
+ * The moving warm gradient is FOUNDER-LOCKED. These params must stay in lockstep
+ * with Background.jsx. Do not change either without changing both.
  */
-export default function Background() {
+function GradientOnly() {
   return (
     <Suspense fallback={null}>
       <ShaderGradientCanvas
-        className="bg-shader"
-        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: -2, pointerEvents: "none" }}
-        pixelDensity={bgPixelDensity}
+        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        pixelDensity={1}
         fov={38}
       >
         <ShaderGradient
@@ -49,3 +51,5 @@ export default function Background() {
     </Suspense>
   );
 }
+
+createRoot(document.getElementById("root")).render(<GradientOnly />);

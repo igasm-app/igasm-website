@@ -4,3 +4,6 @@ dist/
 .vercel/
 *.log
 .env
+
+# gradient build artifact (compiled into the app, not shipped on the site)
+dist-gradient/

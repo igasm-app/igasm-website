@@ -2,6 +2,7 @@ import { Component, Suspense, lazy, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import InView from "./components/InView.jsx";
 
 // Code-split the heavy WebGL bundles so the warm CSS gradient + content paint
 // instantly; the shaders stream in after.
@@ -28,13 +29,59 @@ const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced
 const fine = typeof matchMedia !== "undefined" && matchMedia("(hover: hover) and (pointer: fine)").matches;
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Store a signup through the locked-down join_waitlist RPC. This is the ONLY thing the
+// public key can do - it validates + dedupes server-side and can never read the list back.
+async function postWaitlist(email, source) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error("waitlist endpoint not configured");
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/join_waitlist`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({
+      p_email: email,
+      p_source: source || null,
+      p_referrer: (typeof document !== "undefined" && document.referrer) || null,
+    }),
+  });
+  if (!res.ok) throw new Error(`waitlist ${res.status}`);
+  return true;
+}
+
 export default function App() {
   const root = useRef(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
 
+    /* ---- Lenis smooth scroll (desktop only) + grain-freeze-on-scroll (all devices) ---- */
+    let lenis = null;
+    let rafCb = null;
+    if (fine && !reduce) {
+      lenis = new Lenis({
+        lerp: 0.09, // award-site sweet spot (0.08-0.10): heavy, expensive glide
+        smoothWheel: true,
+        syncTouch: false, // native momentum on touch beats any JS emulation
+        wheelMultiplier: 1,
+        gestureOrientation: "vertical",
+        overscroll: true,
+        autoRaf: false, // ONE RAF loop only, driven by the GSAP ticker below
+      });
+      document.documentElement.classList.add("lenis");
+      lenis.on("scroll", ScrollTrigger.update);
+      rafCb = (t) => lenis.raf(t * 1000);
+      gsap.ticker.add(rafCb);
+      gsap.ticker.lagSmoothing(0); // never "catch up" - prevents jumpy scroll on a busy frame
+    }
+    // (The film grain is now static CSS, so there is no animation to freeze. Toggling a class on
+    // the full-screen mix-blend layer on every scroll frame was itself a jank source - removed.)
+
+    const ctx = gsap.context(() => {
       /* ---- light-reveal wordmark + warm cursor glow ---- */
       const wrap = document.querySelector(".wordmark-wrap");
       const glow = document.querySelector(".cursor-glow");
@@ -72,16 +119,6 @@ export default function App() {
         }
       }
 
-      /* ---- Lenis smooth scroll (fine pointer) ---- */
-      let lenis = null;
-      if (fine && !reduce) {
-        lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false });
-        document.documentElement.classList.add("lenis");
-        lenis.on("scroll", ScrollTrigger.update);
-        gsap.ticker.add((t) => lenis.raf(t * 1000));
-        gsap.ticker.lagSmoothing(0);
-      }
-
       /* ---- reveals ---- */
       if (!reduce) {
         gsap.set(".reveal", { opacity: 0, y: 24 });
@@ -104,28 +141,8 @@ export default function App() {
         });
       }
 
-      /* ---- cycle ring draw-on ---- */
-      const arc = document.querySelector(".ring-arc");
-      if (arc) {
-        const r = 160,
-          C = 2 * Math.PI * r;
-        arc.style.strokeDasharray = C;
-        arc.style.transform = "rotate(-90deg)";
-        arc.style.transformOrigin = "210px 210px";
-        if (reduce) {
-          arc.style.strokeDashoffset = "0";
-        } else {
-          arc.style.strokeDashoffset = C;
-          ScrollTrigger.create({
-            trigger: ".insight",
-            start: "top 72%",
-            onEnter: () => gsap.to(arc, { strokeDashoffset: 0, duration: 1.8, ease: "power2.out" }),
-          });
-        }
-      }
-
       /* ---- nav active-section tracking ---- */
-      ["idea", "cycle", "private", "join"].forEach((id) => {
+      ["idea", "everyone", "cycle", "private", "join"].forEach((id) => {
         const sec = document.getElementById(id);
         const link = document.querySelector(`.index a[href="#${id}"]`);
         if (!sec || !link) return;
@@ -158,31 +175,36 @@ export default function App() {
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
     }, root);
 
-    /* ---- waitlist forms ---- */
+    /* ---- waitlist forms (store via the locked join_waitlist RPC) ---- */
     const wired = [];
     document.querySelectorAll(".waitlist").forEach((form) => {
       const note = form.querySelector(".form-note");
       const field = form.querySelector(".field");
-      const input = form.querySelector("input");
+      const input = form.querySelector('input[type="email"]');
       const btn = form.querySelector("button");
+      const honey = form.querySelector(".hp-field"); // bot honeypot
+      const source = form.getAttribute("data-source") || "site";
       let busy = false;
       const setNote = (msg, cls) => {
         if (!note) return;
         note.textContent = msg;
         note.className = "form-note show" + (cls ? " " + cls : "");
       };
-      if (localStorage.getItem("igasm_waitlist") === "1") {
-        if (field) field.style.display = "none";
-        setNote("You are already on the list. See you soon.", "ok");
-        return;
-      }
+      // Deliberately NO localStorage hide: on a fresh visit/refresh the field is always
+      // there. Success is shown for the current visit only.
       const onSubmit = async (e) => {
         e.preventDefault();
         if (busy) return;
+        if (honey && honey.value) {
+          // a bot filled the hidden trap; show success, send nothing
+          if (field) field.style.display = "none";
+          setNote("You are in. Your invitation arrives before the door opens.", "ok");
+          return;
+        }
         const email = input.value.trim();
         if (!isEmail(email)) {
           input.setAttribute("aria-invalid", "true");
-          setNote("Please enter a valid email.", "err");
+          setNote("That email looks off. Mind checking it has an @ and a domain?", "err");
           input.focus();
           return;
         }
@@ -191,21 +213,20 @@ export default function App() {
         btn.disabled = true;
         btn.style.opacity = "0.6";
         try {
-          await new Promise((r) => setTimeout(r, 550)); // demo mode; wire endpoint later
-          try {
-            localStorage.setItem("igasm_waitlist", "1");
-          } catch (_) {}
+          await postWaitlist(email, source);
           if (field) {
             field.style.transition = "opacity .5s ease";
             field.style.opacity = "0";
-            setTimeout(() => (field.style.display = "none"), 480);
+            setTimeout(() => {
+              field.style.display = "none";
+            }, 480);
           }
-          setNote("You are on the list. Your invitation arrives before the door opens.", "ok");
+          setNote("You are in. Your invitation arrives before the door opens.", "ok");
         } catch (_) {
           busy = false;
           btn.disabled = false;
           btn.style.opacity = "";
-          setNote("Something went wrong. Please try again.", "err");
+          setNote("Something went wrong on our end. Please try again in a moment.", "err");
         }
       };
       form.addEventListener("submit", onSubmit);
@@ -214,6 +235,8 @@ export default function App() {
 
     return () => {
       ctx.revert();
+      if (rafCb) gsap.ticker.remove(rafCb);
+      if (lenis) lenis.destroy();
       wired.forEach(([f, h]) => f.removeEventListener("submit", h));
     };
   }, []);
@@ -234,13 +257,14 @@ export default function App() {
       <header className="nav">
         <div className="nav-inner">
           <a href="#top" className="brand" data-cursor>
-            igasm<sup>&reg;</sup>
+            igasm
           </a>
           <nav className="index" aria-label="Sections">
             <a href="#idea" data-cursor><i>01</i> The idea</a>
-            <a href="#cycle" data-cursor><i>02</i> The cycle</a>
-            <a href="#private" data-cursor><i>03</i> Private</a>
-            <a href="#join" data-cursor><i>04</i> Join</a>
+            <a href="#everyone" data-cursor><i>02</i> For everyone</a>
+            <a href="#cycle" data-cursor><i>03</i> The cycle</a>
+            <a href="#private" data-cursor><i>04</i> Private</a>
+            <a href="#join" data-cursor><i>05</i> Join</a>
           </nav>
           <a href="#join" className="nav-cta" data-cursor>Get early access</a>
         </div>
@@ -249,21 +273,30 @@ export default function App() {
       <main>
         {/* HERO */}
         <section className="hero" id="top">
+          <div className="hero-lead">
           <p className="hero-eyebrow">
-            <span className="live"><i /> Waitlist open</span> <span className="d">/</span> coming soon to iOS + Android
+            <span className="live"><i /> Waitlist open</span>
+            <span className="d" aria-hidden="true">/</span>
+            <span className="eb-rest">coming soon to iOS + Android</span>
           </p>
           <div className="wordmark-wrap">
             <h1 className="wordmark" aria-label="igasm">
               <span className="wm-base" aria-hidden="true">igasm</span>
               <span className="wm-lit" aria-hidden="true">igasm</span>
+              <span className="wm-sheen" aria-hidden="true">igasm</span>
             </h1>
             <span className="wm-glow" aria-hidden="true" />
           </div>
-          <p className="hero-sub">Your intimacy and your cycle, finally read together.</p>
-          <form className="waitlist hero-form" aria-label="Join the waitlist">
+          <p className="hero-sub">Your intimacy, <span className="accent">finally understood</span>. Solo, couples, or groups. Every body, every orientation.</p>
+          </div>
+          <form className="waitlist hero-form" data-source="hero" aria-label="Join the waitlist" noValidate>
             <label className="sr-only" htmlFor="email-hero">Your email address</label>
+            <div className="hp-wrap" aria-hidden="true">
+              <label htmlFor="hp-hero">Leave this field empty</label>
+              <input className="hp-field" id="hp-hero" type="text" name="company" tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="field">
-              <input id="email-hero" type="email" name="email" inputMode="email" autoComplete="email" required placeholder="you@email.com" aria-describedby="note-hero" />
+              <input id="email-hero" type="email" name="email" inputMode="email" autoComplete="email" placeholder="you@email.com" aria-describedby="note-hero" />
               <button type="submit" className="cta" data-cursor><span>Get early access</span><span className="arr">&rarr;</span></button>
             </div>
             <p className="form-note" id="note-hero" role="status" aria-live="polite" />
@@ -271,106 +304,125 @@ export default function App() {
           <a className="scroll-cue" href="#idea" data-cursor><span>Scroll</span><span className="cue-line" /></a>
         </section>
 
-        {/* 01 THE IDEA */}
-        <section className="block" id="idea">
-          <header className="block-head"><span className="num">01</span><span className="lbl">The idea</span></header>
-          <div className="block-body">
-            <h2 className="big reveal">Most apps know your calendar. None of them know your wanting.</h2>
-            <p className="sub reveal">We built the one that reads both, in private, for solo, couples and consenting groups.</p>
-            <ol className="steps">
-              <li className="step reveal"><span className="step-n">01</span><h3 className="step-h">Track what you feel</h3><p className="step-b">Desire, mood, energy, who you were with. The honest details, logged in seconds.</p></li>
-              <li className="step reveal"><span className="step-n">02</span><h3 className="step-h">See your rhythm</h3><p className="step-b">A menstrual-cycle tracker that learns your phases and patterns over time.</p></li>
-              <li className="step reveal"><span className="step-n">03</span><h3 className="step-h">Understand the two</h3><p className="step-b">Cycle-aware insight into how your phase shapes your desire. The part no one else shows you.</p></li>
+        {/* liquid-metal seam leaving the hero - bookends the one above the footer */}
+        {!reduce && (
+          <div className="seam-wrap seam-top" aria-hidden="true">
+            <Safe>
+              <Suspense fallback={null}>
+                <LiquidSeam className="liquid-seam liquid-seam-top" />
+              </Suspense>
+            </Safe>
+          </div>
+        )}
+
+        {/* 01 THE IDEA - a ledger on a hairline spine */}
+        <section className="block block--idea" id="idea">
+          <div className="idea-col">
+            <header className="idea-index reveal"><span className="num">01</span><span className="d">/</span><span className="lbl">The idea</span></header>
+            <h2 className="big idea-head reveal">Most apps know your calendar. None of them know your wanting.</h2>
+            <p className="lead reveal">We made the one that reads your whole intimate life, and keeps it yours. For every body, and every kind of closeness.</p>
+            <ol className="moves">
+              <li className="move reveal"><span className="move-n" aria-hidden="true">01</span><div className="move-body"><h3 className="move-h">Track what you feel</h3><p className="move-b">Desire, mood, energy, who you were with. The honest details, logged in seconds.</p></div></li>
+              <li className="move reveal"><span className="move-n" aria-hidden="true">02</span><div className="move-body"><h3 className="move-h">See your patterns</h3><p className="move-b">How your desire, arousal and satisfaction move over time, and what actually shifts them.</p></div></li>
+              <li className="move reveal"><span className="move-n" aria-hidden="true">03</span><div className="move-body"><h3 className="move-h">Connect your cycle</h3><p className="move-b">If you menstruate, watch your phase shape your wanting. <span className="accent">The part no one else shows you.</span></p></div></li>
             </ol>
           </div>
         </section>
 
-        {/* 02 THE CYCLE */}
-        <section className="block insight" id="cycle">
-          <header className="block-head"><span className="num">02</span><span className="lbl">The cycle</span></header>
-          <div className="block-body insight-body">
-            <div className="insight-copy">
-              <h2 className="big reveal">Your desire has a rhythm. We help you read it.</h2>
-              <p className="sub reveal">Four phases, one rhythm, drawn in your own private light. A typical cycle, shown for illustration.</p>
-              <ul className="phase-legend reveal">
-                <li><span className="swatch" style={{ "--c": "var(--menstrual)" }} /> Menstrual</li>
-                <li><span className="swatch" style={{ "--c": "var(--follicular)" }} /> Follicular</li>
-                <li><span className="swatch" style={{ "--c": "var(--ovulatory)" }} /> Ovulatory</li>
-                <li><span className="swatch" style={{ "--c": "var(--luteal)" }} /> Luteal</li>
-              </ul>
-            </div>
-            <div className="insight-art reveal">
-              <svg className="ring" viewBox="0 0 420 420" role="img" aria-label="Your intimacy and your cycle drawn together as a ring of phases.">
-                <defs>
-                  <linearGradient id="phaseGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="var(--menstrual)" />
-                    <stop offset="34%" stopColor="var(--follicular)" />
-                    <stop offset="67%" stopColor="var(--ovulatory)" />
-                    <stop offset="100%" stopColor="var(--luteal)" />
-                  </linearGradient>
-                  <filter id="soften" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2" /></filter>
-                </defs>
-                <g className="ring-rotate">
-                  <circle className="ring-track" cx="210" cy="210" r="160" fill="none" />
-                  <circle className="ring-arc" cx="210" cy="210" r="160" fill="none" />
-                  <circle className="ring-dot" r="7" cx="210" cy="50" />
-                </g>
-              </svg>
-            </div>
-          </div>
-        </section>
-
-        {/* 03 PRIVATE */}
-        <section className="block private" id="private">
-          <header className="block-head"><span className="num">03</span><span className="lbl">Private</span></header>
+        {/* 02 FOR EVERYONE */}
+        <section className="block everyone" id="everyone">
+          <header className="block-head"><span className="num">02</span><span className="lbl">For everyone</span></header>
           <div className="block-body">
-            <h2 className="big reveal">Private by design, not a promise you have to trust.</h2>
-            <ul className="vow">
-              <li className="reveal">Encrypted in transit and at rest.</li>
-              <li className="reveal">Never sold, never shared with anyone.</li>
-              <li className="reveal">No third-party ad or analytics on your intimate data.</li>
-              <li className="reveal">Yours to export or delete, anytime.</li>
+            <h2 className="big reveal">Made for every body, and every kind of closeness.</h2>
+            <p className="sub reveal">Whoever you are, however you love, alone or together. igasm never assumes a default person.</p>
+            <ul className="mode-list">
+              <li className="reveal"><span className="mode-name">Solo</span><span className="mode-line">Just you. Your patterns, your pleasure, your private record.</span></li>
+              <li className="reveal"><span className="mode-name">Couples</span><span className="mode-line">You and a partner, in one shared and consenting space.</span></li>
+              <li className="reveal"><span className="mode-name">Groups</span><span className="mode-line">Throuples and more. Whatever your circle looks like, with everyone's consent.</span></li>
             </ul>
+            <p className="sub reveal everyone-close">Every gender. Every orientation. No one here is the default.</p>
           </div>
         </section>
 
-        {/* 04 JOIN */}
-        <section className="block join" id="join">
-          <header className="block-head"><span className="num">04</span><span className="lbl">Join</span></header>
+        {/* 03 THE CYCLE */}
+        <section className="block insight" id="cycle">
+          <header className="block-head"><span className="num">03</span><span className="lbl">The cycle</span></header>
           <div className="block-body">
-            <h2 className="big reveal">Be first in.</h2>
+            <h2 className="big reveal">Your desire has a rhythm. We help you read it.</h2>
+            <p className="sub reveal">If you menstruate, your cycle is one quiet lens on how wanting moves through a month. Four phases, read in private, on your terms.</p>
+            <ul className="phases reveal">
+              <li className="phase"><span className="phase-name">Menstrual</span><span className="phase-read">A slower, inward turn. Rest is allowed.</span></li>
+              <li className="phase"><span className="phase-name">Follicular</span><span className="phase-read">Energy returns. Curiosity opens back up.</span></li>
+              <li className="phase"><span className="phase-name">Ovulatory</span><span className="phase-read">Often the brightest, most outward stretch.</span></li>
+              <li className="phase"><span className="phase-name">Luteal</span><span className="phase-read">Things soften and settle. Closeness over fireworks.</span></li>
+            </ul>
+            <p className="cycle-close reveal">Not a forecast. A way to recognise yourself.</p>
+          </div>
+        </section>
+
+        {/* 04 PRIVATE - the one framed glass vault */}
+        <section className="block private" id="private">
+          <header className="block-head"><span className="num">04</span><span className="lbl">Private</span></header>
+          <div className="block-body">
+            <h2 className="big reveal">Private by design, <span className="accent">not a promise</span> you have to trust.</h2>
+            <div className="vault reveal">
+              <ul className="vault-grid">
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">01</span><h3 className="vow-h">Encrypted the whole way</h3><p className="vow-b">Sealed in transit and at rest, so it is unreadable in between.</p></li>
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">02</span><h3 className="vow-h">Never sold, never shared</h3><p className="vow-b">Not to advertisers, not to anyone. There is no version of this where we sell you.</p></li>
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">03</span><h3 className="vow-h">No trackers on intimate data</h3><p className="vow-b">Zero third-party ad or analytics SDKs touch what you log here.</p></li>
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">04</span><h3 className="vow-h">Yours to take or erase</h3><p className="vow-b">Export everything or delete it for good, the moment you decide, no questions.</p></li>
+              </ul>
+              <p className="vault-foot">Informational wellness, never a diagnosis. Your record stays yours.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* 05 JOIN - the centered finale (bookends the hero) */}
+        <section className="block join block--join" id="join">
+          <div className="join-col">
+            <header className="join-index reveal"><span className="num">05</span><span className="d">/</span><span className="lbl">Join</span></header>
+            <div className="threshold-rule reveal" aria-hidden="true" />
+            <h2 className="join-h reveal">Be first in.</h2>
             <p className="sub reveal">Your invitation arrives before the door opens.</p>
-            <form className="waitlist reveal" aria-label="Join the waitlist">
+            <form className="waitlist reveal" data-source="join" aria-label="Join the waitlist" noValidate>
               <label className="sr-only" htmlFor="email-join">Your email address</label>
+              <div className="hp-wrap" aria-hidden="true">
+                <label htmlFor="hp-join">Leave this field empty</label>
+                <input className="hp-field" id="hp-join" type="text" name="company" tabIndex={-1} autoComplete="off" />
+              </div>
               <div className="field">
-                <input id="email-join" type="email" name="email" inputMode="email" autoComplete="email" required placeholder="you@email.com" aria-describedby="note-join" />
+                <input id="email-join" type="email" name="email" inputMode="email" autoComplete="email" placeholder="you@email.com" aria-describedby="note-join safe-join" />
                 <button type="submit" className="cta" data-cursor><span>Get early access</span><span className="arr">&rarr;</span></button>
               </div>
               <p className="form-note" id="note-join" role="status" aria-live="polite" />
+              <p className="form-safe reveal" id="safe-join">Just your email, nothing else. Encrypted, never sold, and gone the moment you ask. We are very, very good at keeping secrets :)</p>
             </form>
-            <p className="trust reveal">Private by design <span className="d">/</span> 17+ <span className="d">/</span> no spam, leave anytime</p>
+            <p className="trust reveal">Private by design / encrypted, never sold / leave anytime</p>
           </div>
         </section>
       </main>
 
       {!reduce && (
-        <Safe>
-          <Suspense fallback={null}>
-            <LiquidSeam />
-          </Suspense>
-        </Safe>
+        <div className="seam-wrap" aria-hidden="true">
+          <Safe>
+            <Suspense fallback={null}>
+              <LiquidSeam />
+            </Suspense>
+          </Safe>
+        </div>
       )}
 
       <footer className="foot">
         <div className="foot-top">
           <span className="foot-mark">igasm</span>
-          <p className="foot-line">A private companion for your intimacy and your cycle. Coming soon to iOS and Android.</p>
+          <p className="foot-line">A private companion for your intimacy, for every body. Coming soon to iOS and Android.</p>
         </div>
         <div className="foot-base">
           <a href="https://igasm.in" data-cursor>igasm.in</a>
+          <a href="https://www.instagram.com/igasmapp" target="_blank" rel="noopener noreferrer" data-cursor>Instagram</a>
           <a href="mailto:admin@igasm.in" data-cursor>admin@igasm.in</a>
-          <span>Informational wellness for 17+. Encrypted, never sold.</span>
-          <span>&copy; 2026 igasm</span>
+          <span>Informational wellness. Encrypted, never sold.</span>
+          <span>igasm by Venex Labs &middot; &copy; 2026</span>
         </div>
       </footer>
     </div>
