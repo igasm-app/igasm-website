@@ -32,6 +32,5 @@ export const paperCaps = isPhone
   : { minPixelRatio: 1, maxPixelCount: 2_000_000 };
 
 // FOUNDER-LOCKED: the beloved moving gradient renders at FULL density on EVERY device.
-// Never downgraded - colors, motion, sharpness all stay identical everywhere. We win
-// mobile performance from the accent shaders (InView-gated + capped), never from this.
+// Never downgraded - colors, motion, sharpness all stay identical everywhere.
 export const bgPixelDensity = 1;

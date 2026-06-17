@@ -2,7 +2,6 @@ import { Component, Suspense, lazy, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import InView from "./components/InView.jsx";
 
 // Code-split the heavy WebGL bundles so the warm CSS gradient + content paint
 // instantly; the shaders stream in after.
@@ -306,7 +305,7 @@ export default function App() {
 
         {/* liquid-metal seam leaving the hero - bookends the one above the footer */}
         {!reduce && (
-          <div className="seam-wrap seam-top" aria-hidden="true">
+          <div className="seam-wrap" aria-hidden="true">
             <Safe>
               <Suspense fallback={null}>
                 <LiquidSeam className="liquid-seam liquid-seam-top" />

@@ -14,15 +14,15 @@ Public, store-adjacent page, so: tasteful and discreet only (the bold voice is i
 
 - `index.html` - Vite entry (`#root`)
 - `src/main.jsx` - mount
-- `src/App.jsx` - all sections + the motion engine (light-reveal wordmark, GSAP reveals, Lenis smooth scroll, cycle ring, nav active-tracking, magnetic CTAs, waitlist)
+- `src/App.jsx` - all sections + the motion engine (light-reveal wordmark, GSAP reveals, Lenis smooth scroll, cycle phase list, nav active-tracking, magnetic CTAs, waitlist)
 - `src/components/Background.jsx` - ShaderGradient warm 3D gradient (lazy, code-split, error-boundaried -> CSS fallback)
 - `src/components/LiquidSeam.jsx` - Paper Shaders LiquidMetal seam above the footer (lazy)
 - `src/styles.css` - warm token system, all section styles, responsive, reduced-motion
-- `public/favicon.svg`
+- `public/favicon.png` + `public/apple-touch-icon.png` - the founder's final logo
 
 Libraries: react 18, three 0.157, @react-three/fiber 8, @react-three/drei 9, @shadergradient/react 2, @paper-design/shaders-react, gsap 3.15, lenis 1.3. Governed by the three design skills in `SKILLS.md`.
 
-Warm palette matches the app (`/Users/areeb/igasm/lib/theme.ts`): plum-black `#1A1416`, rose `#E08AA0`, peach, cream. The animated 3D background and the liquid seam are gated off under `prefers-reduced-motion` and degrade to a still warm gradient.
+Warm palette matches the app (`/Users/areeb/igasm/lib/theme.ts`): plum-black `#1A1416`, amber `#E8985E`, peach, cream. The animated 3D background and the liquid seam are gated off under `prefers-reduced-motion` and degrade to a still warm gradient.
 
 ## Run locally
 

@@ -21,8 +21,6 @@
   --ember: #5a4750; /* unlit wordmark */
   --menstrual: #e47d92;
   --follicular: #6fc2a1;
-  --ovulatory: #e3b765;
-  --luteal: #a593d8;
 
   --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
   --sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -149,13 +147,6 @@ a {
   will-change: transform;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   /* grain is STATIC (no animation): removes the per-frame re-blend that made scroll glitch; the texture stays */
-}
-@keyframes grain {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-3%, 2%); }
-  50% { transform: translate(2%, -3%); }
-  75% { transform: translate(-2%, 3%); }
-  100% { transform: translate(0, 0); }
 }
 
 /* =========================================================================
@@ -463,24 +454,6 @@ html.lenis body { height: auto; }
   60%, 100% { background-position: -75% 0; }
 }
 
-/* the igasm wordmark rendered AS moving liquid metal (Paper LiquidMetal), overlaid on
-   the CSS wordmark. Fades in once the shader paints. */
-.wm-metal {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  animation: wm-metal-in 1.4s var(--ease-out) 0.25s both;
-}
-@keyframes wm-metal-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-/* when the metal is active, retire the CSS warm-light layers; keep wm-base faint as the
-   alignment + fallback base so the wordmark is never blank while the shader rasterizes. */
-.wordmark.has-metal .wm-lit,
-.wordmark.has-metal .wm-sheen { opacity: 0; }
-.wordmark.has-metal .wm-base { opacity: 0.45; }
 .hero-sub {
   margin: 0;
   max-width: 38ch;
@@ -717,153 +690,6 @@ html.lenis body { height: auto; }
   display: flex;
 }
 
-/* =========================================================================
-   The cycle - insight + ring
-   ========================================================================= */
-.insight-body {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: clamp(32px, 5vw, 80px);
-  align-items: center;
-}
-.insight-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s5);
-}
-.phase-legend {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 22px;
-  padding: 0;
-  margin: var(--s2) 0 0;
-  font-size: 0.86rem;
-  color: var(--muted);
-}
-.phase-legend li {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.swatch {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--c);
-  box-shadow: 0 0 10px -1px var(--c);
-}
-.insight-art {
-  display: grid;
-  place-items: center;
-}
-/* ---- cycle: glassy smoke disc (GemSmoke) replaces the old ring ---- */
-.cycle-smoke {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  width: min(440px, 84vw);
-  margin-inline: auto;
-  filter: drop-shadow(0 0 60px rgba(224, 138, 160, 0.14));
-}
-.cycle-gl,
-.cycle-disc-fallback {
-  position: absolute;
-  inset: 0;
-}
-/* static fallback (reduced-motion / webgl-off / while the shader loads): a soft
-   phase-coloured ring so the section is never an empty gap. */
-.cycle-disc-fallback {
-  border-radius: 50%;
-  background: conic-gradient(
-    from -90deg,
-    var(--menstrual),
-    var(--follicular) 33%,
-    var(--ovulatory) 66%,
-    var(--luteal) 100%,
-    var(--menstrual)
-  );
-  -webkit-mask: radial-gradient(circle, transparent 40%, #000 46%, #000 72%, transparent 80%);
-  mask: radial-gradient(circle, transparent 40%, #000 46%, #000 72%, transparent 80%);
-  filter: blur(1.5px);
-  opacity: 0.8;
-}
-.ring {
-  width: min(42vw, 420px);
-  height: auto;
-  overflow: visible;
-}
-.ring-track {
-  stroke: var(--border);
-  stroke-width: 1.5;
-}
-.ring-arc {
-  stroke: url(#phaseGrad);
-  stroke-width: 3;
-  stroke-linecap: round;
-  filter: url(#soften);
-}
-.ring-dot {
-  fill: var(--ink);
-  filter: drop-shadow(0 0 8px var(--accent));
-}
-.ring-rotate {
-  transform-origin: 210px 210px;
-  animation: ringspin 220s linear infinite;
-}
-@keyframes ringspin {
-  to { transform: rotate(360deg); }
-}
-
-/* ---- living cycle wheel (replaces the static ring): a phase-gradient ring with a
-   light orbiting through the phases, a breathing desire aura, and a centred label. ---- */
-.wheel {
-  width: min(44vw, 440px);
-  height: auto;
-  overflow: visible;
-}
-.wheel-track {
-  stroke: var(--border);
-  stroke-width: 1.5;
-}
-.wheel-arc {
-  stroke: url(#phaseGrad);
-  stroke-width: 9;
-  stroke-linecap: round;
-}
-.wheel-aura {
-  transform-box: view-box;
-  transform-origin: 220px 220px;
-  animation: wheelbreathe 6s var(--ease-in-out) infinite;
-}
-.wheel-orbit {
-  transform-box: view-box;
-  transform-origin: 220px 220px;
-  animation: wheelspin 16s linear infinite;
-}
-.wheel-dot {
-  fill: var(--ink);
-  filter: drop-shadow(0 0 9px var(--accent)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
-}
-.wheel-label {
-  fill: var(--ink);
-  font-family: var(--serif);
-  font-size: 30px;
-  letter-spacing: -0.01em;
-}
-.wheel-sub {
-  fill: var(--subtle);
-  font-family: var(--sans);
-  font-size: 12.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-@keyframes wheelspin {
-  to { transform: rotate(360deg); }
-}
-@keyframes wheelbreathe {
-  0%, 100% { opacity: 0.5; transform: scale(0.97); }
-  50% { opacity: 1; transform: scale(1.04); }
-}
 
 /* =========================================================================
    For everyone
@@ -911,30 +737,6 @@ html.lenis body { height: auto; }
 /* =========================================================================
    Private
    ========================================================================= */
-.vow {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s4);
-}
-.vow li {
-  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-  color: var(--ink);
-  padding-left: 26px;
-  position: relative;
-}
-.vow li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.62em;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-}
 
 /* =========================================================================
    Join - waitlist
@@ -1195,10 +997,6 @@ html.js .reveal.in {
   :root { --section: clamp(64px, 9vh, 120px); } /* tighter vertical rhythm on phones */
   .index { display: none; }
   .block { grid-template-columns: 1fr; gap: var(--s5); }
-  .insight-body { grid-template-columns: 1fr; gap: var(--s7); }
-  .insight-art { order: -1; }
-  .ring { width: min(72vw, 360px); }
-  .wheel { width: min(78vw, 340px); }
   .nav-cta { min-height: 40px; display: inline-flex; align-items: center; font-size: 0.62rem; padding: 8px 15px; letter-spacing: 0.1em; white-space: nowrap; } /* smaller + single line on phones */
   .promise.enhanced .promise-pin { position: static; min-height: auto; }
   .promise.enhanced .beat { position: relative; opacity: 1; transform: none; pointer-events: auto; }
@@ -1272,14 +1070,9 @@ html.js .reveal.in {
    ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
   html:not(.lenis) { scroll-behavior: auto; }
-  .grain { animation: none; }
   .cta::after { display: none; }
   .cta:active { transform: none; }
-  .wm-metal { display: none; }
   .live i { animation: none; }
-  .ring-rotate { animation: none; }
-  .wheel-orbit { animation: none; }
-  .wheel-aura { animation: none; opacity: 0.7; }
   .wm-sheen { animation: none; opacity: 0; }
   .scroll-cue .cue-line { animation: none; opacity: 0.6; transform: scaleY(1); }
   .cursor-glow { display: none; }
