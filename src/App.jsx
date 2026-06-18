@@ -28,8 +28,14 @@ const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced
 const fine = typeof matchMedia !== "undefined" && matchMedia("(hover: hover) and (pointer: fine)").matches;
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Env vars take precedence, but we fall back to the hardcoded publishable key + project URL so the
+// waitlist can NEVER silently break if a Vercel deploy forgets the env vars. This is safe by design:
+// the anon "publishable" key is meant to live in public client code, and it can ONLY call the
+// locked-down join_waitlist RPC (validate + dedupe + insert) - it can never read the list back
+// (waitlist_signup is RLS deny-all on select for anon). See supabase/migrations/*waitlist*.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://vctuxzonhjzhhmmhjuwv.supabase.co";
+const SUPABASE_ANON_KEY =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_m7qrehp72KtwO3E_M-VRMA_xeloUxUd";
 
 // Store a signup through the locked-down join_waitlist RPC. This is the ONLY thing the
 // public key can do - it validates + dedupes server-side and can never read the list back.
