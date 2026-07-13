@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite --port 4321 --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --port 4321 --host 127.0.0.1"
+    "preview": "vite preview --port 4321 --host 127.0.0.1",
+    "waitlist": "node scripts/waitlist-export.mjs",
+    "waitlist:real": "node scripts/waitlist-export.mjs --real",
+    "waitlist:csv": "node scripts/waitlist-export.mjs --csv"
   },
   "dependencies": {
     "@paper-design/shaders-react": "^0.0.76",
