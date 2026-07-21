@@ -39,6 +39,18 @@ npx serve dist   # (or any static server) to preview the production build
 
 `npm run build` produces a static `dist/` (relative asset paths). Host on Vercel / Netlify / Cloudflare Pages / GitHub Pages and point `igasm.in` at it.
 
+## Waitlist (reading the signups)
+
+Emails submitted on the site land in Supabase table `public.waitlist_signup`. That table is deny-by-default (the public can only INSERT via the `join_waitlist` RPC, never SELECT), so the list is readable **only with the service_role key** (server-only, RLS-bypassing).
+
+```bash
+npm run waitlist            # count + breakdown by source + most recent
+npm run waitlist:real       # same, excluding internal agent-livecheck QA rows
+npm run waitlist:csv > waitlist.csv   # full CSV export
+```
+
+The key is read from `$SUPABASE_SERVICE_ROLE_KEY` or `../igasm-creds/service_role_key.txt` (never hardcoded or committed). Implementation: `scripts/waitlist-export.mjs`. As of 2026-07-13 there are 0 real signups (one internal test row only).
+
 ## Design references
 
 See `SKILLS.md` for the seven founder-provided design repos (three governance skills + four effect libraries) and exactly how each is applied.
