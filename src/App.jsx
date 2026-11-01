@@ -426,6 +426,9 @@ export default function App() {
           <a href="https://igasm.in" data-cursor>igasm.in</a>
           <a href="https://www.instagram.com/igasmapp" target="_blank" rel="noopener noreferrer" data-cursor>Instagram</a>
           <a href="mailto:admin@igasm.in" data-cursor>admin@igasm.in</a>
+          <a href="/privacy/" data-cursor>Privacy</a>
+          <a href="/privacy/#consumer-health-data" data-cursor>Consumer Health Data Privacy Policy</a>
+          <a href="/terms/" data-cursor>Terms</a>
           <span>Informational wellness. Encrypted, never sold.</span>
           <span>igasm by Venex Labs &middot; &copy; 2026</span>
         </div>
