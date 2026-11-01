@@ -429,6 +429,7 @@ export default function App() {
           <a href="/privacy/" data-cursor>Privacy</a>
           <a href="/privacy/#consumer-health-data" data-cursor>Consumer Health Data Privacy Policy</a>
           <a href="/terms/" data-cursor>Terms</a>
+          <a href="/delete/" data-cursor>Delete your account</a>
           <span>Informational wellness. Encrypted, never sold.</span>
           <span>igasm by Venex Labs &middot; &copy; 2026</span>
         </div>
