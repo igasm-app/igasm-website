@@ -329,7 +329,7 @@ export default function App() {
             <ol className="moves">
               <li className="move reveal"><span className="move-n" aria-hidden="true">01</span><div className="move-body"><h3 className="move-h">Track what you feel</h3><p className="move-b">Desire, mood, energy, who you were with. The honest details, logged in seconds.</p></div></li>
               <li className="move reveal"><span className="move-n" aria-hidden="true">02</span><div className="move-body"><h3 className="move-h">See your patterns</h3><p className="move-b">How your desire, arousal and satisfaction move over time, and what actually shifts them.</p></div></li>
-              <li className="move reveal"><span className="move-n" aria-hidden="true">03</span><div className="move-body"><h3 className="move-h">Connect your cycle</h3><p className="move-b">If you menstruate, watch your phase shape your wanting. <span className="accent">The part no one else shows you.</span></p></div></li>
+              <li className="move reveal"><span className="move-n" aria-hidden="true">03</span><div className="move-body"><h3 className="move-h">Connect your cycle</h3><p className="move-b">If you menstruate, see your wanting alongside your cycle, in your own log. <span className="accent">Yours, never an average.</span></p></div></li>
             </ol>
           </div>
         </section>
