@@ -426,6 +426,7 @@ export default function App() {
           <a href="https://igasm.in" data-cursor>igasm.in</a>
           <a href="https://www.instagram.com/igasmapp" target="_blank" rel="noopener noreferrer" data-cursor>Instagram</a>
           <a href="mailto:admin@igasm.in" data-cursor>admin@igasm.in</a>
+          <a href="/desire/" data-cursor>How does your desire work?</a>
           <a href="/privacy/" data-cursor>Privacy</a>
           <a href="/privacy/#consumer-health-data" data-cursor>Consumer Health Data Privacy Policy</a>
           <a href="/terms/" data-cursor>Terms</a>

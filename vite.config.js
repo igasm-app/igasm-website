@@ -6,6 +6,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  // Pin PostCSS here so a stray postcss.config above the repo (e.g. in the home folder) is never picked up.
+  css: { postcss: { plugins: [] } },
   server: { port: 4321, host: "127.0.0.1" },
   build: { outDir: "dist", assetsInlineLimit: 0 },
 });

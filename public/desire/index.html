@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How does your desire work? - igasm</title>
+<meta name="description" content="Three questions, thirty seconds. Spontaneous or responsive desire: a style, never a diagnosis. Your answers never leave this page." />
+<meta name="robots" content="index, follow" />
+<meta property="og:title" content="How does your desire work?" />
+<meta property="og:description" content="Three questions, thirty seconds. A style, never a diagnosis. Nothing is stored." />
+<link rel="icon" href="/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #140c0d; --fg: #fbead8; --muted: rgba(251,234,216,0.72); --subtle: rgba(251,234,216,0.5); --line: rgba(255,240,226,0.12); --amber: #e8985e; --ease: cubic-bezier(0.23, 1, 0.32, 1); }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #3a1712 0%, var(--bg) 60%) fixed; color: var(--fg); font: 17px/1.6 Inter, system-ui, -apple-system, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 56px 20px 96px; }
+  a { color: var(--amber); }
+  .back { font-size: 15px; text-decoration: none; }
+  h1 { font: 400 52px/1.05 "Instrument Serif", Georgia, serif; margin: 28px 0 10px; letter-spacing: -0.01em; }
+  h2 { font: 400 28px/1.2 "Instrument Serif", Georgia, serif; margin: 0 0 14px; }
+  p { color: var(--muted); }
+  .meta { color: var(--subtle); font-size: 15px; }
+  .q { border: 1px solid var(--line); border-radius: 20px; padding: 22px; margin-top: 18px; background: rgba(255,244,232,0.03); }
+  .opt { display: block; width: 100%; text-align: left; font: inherit; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 12px 18px; margin-top: 10px; cursor: pointer; transition: transform 160ms var(--ease), background-color 160ms var(--ease), border-color 160ms var(--ease); }
+  .opt:active { transform: scale(0.98); }
+  .opt[aria-pressed="true"] { background: rgba(232,152,94,0.18); border-color: rgba(232,152,94,0.7); }
+  .opt:focus-visible, .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+  .btn { display: inline-block; font: 500 16px Inter, sans-serif; border: 0; border-radius: 999px; padding: 14px 24px; margin: 22px 10px 0 0; cursor: pointer; background: var(--amber); color: #1b1012; transition: transform 160ms var(--ease), opacity 160ms var(--ease); }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .btn:active { transform: scale(0.97); }
+  .btn[disabled] { opacity: 0.4; cursor: default; }
+  #result { display: none; margin-top: 28px; }
+  #result.on { display: block; animation: rise 420ms var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .card { border-radius: 24px; padding: 34px 26px; background: radial-gradient(500px 300px at 30% 0%, rgba(232,152,94,0.35), transparent 70%), radial-gradient(400px 260px at 100% 100%, rgba(192,64,91,0.35), transparent 70%), #1d1012; border: 1px solid rgba(232,152,94,0.35); }
+  .card .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; color: var(--subtle); }
+  .card .name { font: 400 56px/1.05 "Instrument Serif", Georgia, serif; margin: 10px 0 12px; }
+  .card p { color: var(--fg); opacity: 0.88; margin: 0; }
+  .learn { border-left: 2px solid var(--amber); padding-left: 14px; margin-top: 28px; }
+  .small { font-size: 14px; color: var(--subtle); }
+  footer { margin-top: 64px; color: var(--subtle); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { #result.on { animation: none; } .opt, .btn { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">&larr; igasm</a>
+  <h1>How does your desire work?</h1>
+  <p>Three questions, about thirty seconds. A style, never a diagnosis.</p>
+  <p class="meta">Your answers never leave this page. Nothing is sent, saved or tracked.</p>
+
+  <form id="quiz" onsubmit="return false"></form>
+  <button class="btn" id="see" disabled>See my style</button>
+
+  <section id="result" aria-live="polite">
+    <div class="card" id="card">
+      <div class="eyebrow">My desire style</div>
+      <div class="name" id="rname"></div>
+      <p id="rline"></p>
+    </div>
+    <button class="btn" id="share">Share this quiz</button>
+    <button class="btn ghost" id="save">Save my card</button>
+    <button class="btn ghost" id="again">Take it again</button>
+
+    <div class="learn">
+      <h2>Desire does not always come first</h2>
+      <p>For many people desire shows up once things begin rather than before, and most people experience both kinds at different times. Researchers describe this as responsive desire; it is a common way desire works, and it can change with stress, seasons of life and relationships.</p>
+      <p class="small">Source: <a href="https://eprints.soton.ac.uk/448412/1/Accepted_version_Brotto_Graham_Commentary_JSMT_2021.docx" rel="noopener">Basson model, reviewed in Brotto and Graham (2021)</a>.</p>
+    </div>
+    <p>igasm is a private journal for intimacy and the cycle, coming soon to iPhone and Android. It notices your own patterns over time, and only when your own log shows them. <a href="/">Get the first invite</a>.</p>
+    <p class="small">Informational wellness only. Not medical advice. For anything about your health, ask a clinician.</p>
+  </section>
+
+  <footer>&copy; 2026 igasm. <a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a></footer>
+</main>
+<script>
+// The same three questions and results as the app's "Your desire style" (features/learn/desireStyle.ts).
+var Q = [
+  { id: 'arrives', prompt: 'When desire comes, it more often', options: [['own', 'Arrives on its own, out of nowhere'], ['begins', 'Shows up once touch or closeness begins'], ['both', 'Either, depending on the day']] },
+  { id: 'quiet', prompt: 'On a quiet evening with no plans, the thought of being intimate', options: [['own', 'Often comes by itself'], ['begins', 'Rarely comes until something starts'], ['both', 'Comes and goes']] },
+  { id: 'once', prompt: 'Once things start, your interest usually', options: [['own', 'Was already there'], ['begins', 'Builds as you go'], ['both', 'Depends on the moment']] }
+];
+var COPY = {
+  spark: { name: 'Spark first', line: 'My desire tends to arrive on its own, before anything begins. It is one ordinary way desire works, and it can shift with seasons of life.' },
+  answering: { name: 'Answering', line: 'My desire tends to answer closeness: it grows once things begin. Researchers call this responsive desire. It is common and normal, not a lack of desire.' },
+  both: { name: 'Both ways', line: 'My desire shows up both ways, sometimes on its own and sometimes once things begin. Most people experience both; it is ordinary and it can change.' }
+};
+var answers = {};
+var form = document.getElementById('quiz');
+Q.forEach(function (q) {
+  var box = document.createElement('fieldset');
+  box.className = 'q';
+  box.style.border = '1px solid var(--line)';
+  var legend = document.createElement('legend');
+  legend.style.cssText = 'float:left;width:100%;padding:0;margin:0 0 4px;color:var(--fg)';
+  legend.textContent = q.prompt;
+  box.appendChild(legend);
+  q.options.forEach(function (o) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'opt'; b.textContent = o[1]; b.setAttribute('aria-pressed', 'false');
+    b.onclick = function () {
+      answers[q.id] = o[0];
+      box.querySelectorAll('.opt').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      document.getElementById('see').disabled = Object.keys(answers).length < Q.length;
+    };
+    box.appendChild(b);
+  });
+  form.appendChild(box);
+});
+function score() {
+  var a = Q.map(function (q) { return answers[q.id]; });
+  var own = a.filter(function (x) { return x === 'own'; }).length, begins = a.filter(function (x) { return x === 'begins'; }).length;
+  return own >= 2 ? 'spark' : begins >= 2 ? 'answering' : 'both';
+}
+var current = null;
+document.getElementById('see').onclick = function () {
+  current = COPY[score()];
+  document.getElementById('rname').textContent = current.name;
+  document.getElementById('rline').textContent = current.line;
+  var r = document.getElementById('result'); r.classList.remove('on'); void r.offsetWidth; r.classList.add('on');
+  r.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+};
+document.getElementById('again').onclick = function () {
+  answers = {}; document.querySelectorAll('.opt').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+  document.getElementById('see').disabled = true; document.getElementById('result').classList.remove('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+// Sharing the QUIZ, never the answers: the text says nothing about the result.
+document.getElementById('share').onclick = function () {
+  var data = { title: 'How does your desire work?', text: 'Three questions, thirty seconds, nothing stored.', url: 'https://igasm.in/desire/' };
+  if (navigator.share) navigator.share(data).catch(function () {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(data.url).then(function () { document.getElementById('share').textContent = 'Link copied'; });
+};
+// The card as an image, drawn here in the browser; your result goes nowhere unless you send it yourself.
+function wrap(ctx, text, x, y, max, lh) {
+  var words = text.split(' '), line = '';
+  for (var i = 0; i < words.length; i++) {
+    var t = line ? line + ' ' + words[i] : words[i];
+    if (ctx.measureText(t).width > max && line) { ctx.fillText(line, x, y); line = words[i]; y += lh; } else line = t;
+  }
+  ctx.fillText(line, x, y);
+}
+document.getElementById('save').onclick = function () {
+  if (!current) return;
+  var c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle = '#1d1012'; ctx.fillRect(0, 0, 1080, 1350);
+  var g1 = ctx.createRadialGradient(320, 0, 0, 320, 0, 900); g1.addColorStop(0, 'rgba(232,152,94,0.55)'); g1.addColorStop(1, 'rgba(232,152,94,0)');
+  ctx.fillStyle = g1; ctx.fillRect(0, 0, 1080, 1350);
+  var g2 = ctx.createRadialGradient(1080, 1350, 0, 1080, 1350, 900); g2.addColorStop(0, 'rgba(192,64,91,0.5)'); g2.addColorStop(1, 'rgba(192,64,91,0)');
+  ctx.fillStyle = g2; ctx.fillRect(0, 0, 1080, 1350);
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+    ctx.fillStyle = 'rgba(251,234,216,0.6)'; ctx.font = '500 34px Inter, sans-serif';
+    ctx.fillText('MY DESIRE STYLE', 96, 360);
+    ctx.fillStyle = '#fbead8'; ctx.font = '150px "Instrument Serif", Georgia, serif';
+    ctx.fillText(current.name, 90, 520);
+    ctx.font = '44px Inter, sans-serif'; ctx.fillStyle = 'rgba(251,234,216,0.88)';
+    wrap(ctx, current.line, 96, 640, 888, 64);
+    ctx.font = '400 40px "Instrument Serif", Georgia, serif'; ctx.fillStyle = 'rgba(251,234,216,0.7)';
+    ctx.fillText('igasm.in/desire', 96, 1240);
+    c.toBlob(function (blob) {
+      var file = new File([blob], 'my-desire-style.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file] }).catch(function () {}); return; }
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'my-desire-style.png'; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    }, 'image/png');
+  });
+};
+</script>
+</body>
+</html>

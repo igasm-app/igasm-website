@@ -9,6 +9,7 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // (we read dist-gradient/gradient.html and JSON-stringify it into ../igasm/assets/gradientHtml.ts).
 export default defineConfig({
   base: "./",
+  css: { postcss: { plugins: [] } },
   plugins: [react(), viteSingleFile()],
   build: {
     outDir: "dist-gradient",
