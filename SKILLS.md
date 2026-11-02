@@ -54,3 +54,11 @@ Governance skills (always): Emil design-eng, Impeccable, taste-skill (see above)
 
 ## Stack
 Now a **Vite + React** static build (these effect libs require React + three). `npm run dev` (port 4321) or `npm run build` -> `dist/` (host anywhere static). Libraries: react 18, three 0.157, @react-three/fiber 8, @react-three/drei 9, @shadergradient/react 2, gsap 3.15, lenis 1.3. Fonts: Instrument Serif + Inter. The warm CSS gradient (`.bg-fallback`) + film grain stay as the instant-paint and WebGL-off fallback. Brand spelling: **igasm** (all lowercase) - never `iGasm` (it foregrounds the crude root, reads dated, and risks store approval).
+
+## App motion skills (added 2026-11-02, vendored in the app repo at `.claude/skills/`)
+
+For the app's Ember Instruments layer (docs/EMBER-INSTRUMENTS.md in the app repo), four MIT skills from the teams that make the libraries the app uses:
+- **expo-animation** - https://github.com/expo/skills (Expo, co-written with Emil Kowalski): React Native motion decisions, springs, gestures, haptics.
+- **expo-native-ui** - https://github.com/expo/skills: iOS 26 glass, SF Symbols, HIG controls (the app's own tokens win on conflict).
+- **swm-animations** and **swm-gestures** - https://github.com/software-mansion-labs/skills (the Reanimated and Gesture Handler authors): Reanimated 4, Skia shaders, performance, gesture composition.
+The website itself is unchanged by these.
