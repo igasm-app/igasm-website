@@ -39,6 +39,18 @@ npx serve dist   # (or any static server) to preview the production build
 
 `npm run build` produces a static `dist/` (relative asset paths). Host on Vercel / Netlify / Cloudflare Pages / GitHub Pages and point `igasm.in` at it.
 
+## Learn: the cited content hub (igasm.in/learn)
+
+Eleven static pages under `public/learn/`, **generated** by `scripts/build-learn.mjs` from the app repo's own cited files (`features/learn/cycleGuide.ts`, the cycle guide, and `features/learn/cards.ts`, things worth knowing), so the website says exactly what the app says, card for card. After either file changes in the app, run:
+
+```bash
+node scripts/build-learn.mjs      # app repo expected at ../igasm (override: IGASM_APP=<path>)
+```
+
+and commit the regenerated pages. Pages: the hub, the seven cycle-guide sets (your period, after your period, mid-cycle, before your period, any day, hormonal methods, changing rhythm), things worth knowing, and two tools: a printable "before your appointment" checklist and a cycle-length calculator that runs only in the browser (no network, no storage, no prediction). The build fails on the health-claim firewall (the app's banned words, checked over each page's whole visible text; the one standing pregnancy line is the only exception), on any em or en dash, and on a non-https source.
+
+**Clinician review is pending.** Research M #14 asks for a named reviewer and review date on every page. None exists yet, so every page says so and carries `noindex`, and the hub is not linked from the homepage. When a reviewer signs off: put their name and date in `REVIEW` in the generator, drop the `noindex` line, regenerate, and add a Learn link to the homepage footer. Note: `npm run dev` (Vite) does not serve folder indexes under `public/`; check these pages on the built `dist/` with any static server.
+
 ## Waitlist (reading the signups)
 
 Emails submitted on the site land in Supabase table `public.waitlist_signup`. That table is deny-by-default (the public can only INSERT via the `join_waitlist` RPC, never SELECT), so the list is readable **only with the service_role key** (server-only, RLS-bypassing).
