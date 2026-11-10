@@ -8,6 +8,102 @@
       html, body, #root { margin: 0; height: 100%; width: 100%; overflow: hidden; background: #1A1416; }
       canvas { display: block; }
     </style>
+    <script>
+      // THE FRAME GOVERNOR (app only; the website's own gradient never loads this page). It runs before the
+      // gradient's code and changes WHEN frames are drawn, never WHAT is drawn (app repo docs/TECH.md,
+      // "Gradient performance"):
+      // - 30 fps: a frame goes out on the first vsync at least 31 ms after the last one (every 2nd at 60 Hz,
+      //   every 4th at 120 Hz). The shader reads wall time, so the motion keeps its exact speed.
+      // - __igPause(true|false): holds every frame and stops the clock; on resume the clock picks up where it
+      //   stopped, so the gradient goes on from the very frame it showed (no jump).
+      // - A cheaper GL context: no MSAA, no depth or stencil on the page's own framebuffer (the scene draws
+      //   into the composer's own target; the screen only gets the full-screen grain quad), low power.
+      // - Test hooks, inert unless asked: ?freeze=<seconds> (or window.__igFreezeT) pins the shader time,
+      //   ?fps=<n> overrides the cap, ?gl=orig keeps the default context, ?stats shows frame timing, and
+      //   window.__igStats() returns it.
+      (function () {
+        var q = new URLSearchParams(location.search);
+        var nativeRaf = window.requestAnimationFrame.bind(window);
+        var nativeNow = performance.now.bind(performance);
+        var fps = Number(q.get('fps')) || 30;
+        var gap = 1000 / fps - 2;
+        var paused = false, pausedAt = 0, offset = 0;
+        var queue = [], ids = 0, waiting = false, last = -1e9;
+        var stats = { frames: 0, sum: 0, max: 0, prev: 0, hist: [] };
+        if (q.has('freeze')) window.__igFreezeT = Number(q.get('freeze'));
+
+        // The clock everything reads (THREE.Clock, react-three-fiber): wall time minus the time spent paused.
+        performance.now = function () { return (paused ? pausedAt : nativeNow()) - offset; };
+
+        function tick(t) {
+          waiting = false;
+          if (paused) return;
+          if (t - last < gap) { waiting = true; nativeRaf(tick); return; }
+          if (stats.prev) {
+            var d = t - stats.prev;
+            stats.frames++; stats.sum += d; if (d > stats.max) stats.max = d;
+            if (stats.hist.length < 4000) stats.hist.push(d);
+          }
+          stats.prev = t;
+          last = t;
+          var run = queue;
+          queue = [];
+          for (var i = 0; i < run.length; i++) {
+            try { run[i].cb(t - offset); } catch (e) { setTimeout(function () { throw e; }); }
+          }
+        }
+        window.requestAnimationFrame = function (cb) {
+          var id = ++ids;
+          queue.push({ id: id, cb: cb });
+          if (!waiting && !paused) { waiting = true; nativeRaf(tick); }
+          return id;
+        };
+        window.cancelAnimationFrame = function (id) {
+          for (var i = 0; i < queue.length; i++) if (queue[i].id === id) { queue.splice(i, 1); return; }
+        };
+        window.__igPause = function (p) {
+          p = !!p;
+          if (p === paused) return;
+          if (p) { pausedAt = nativeNow(); paused = true; return; }
+          offset += nativeNow() - pausedAt;
+          paused = false;
+          stats.prev = 0;
+          if (queue.length && !waiting) { waiting = true; nativeRaf(tick); }
+        };
+        window.__igStats = function () {
+          var h = stats.hist.slice().sort(function (a, b) { return a - b; });
+          return {
+            fps: fps, frames: stats.frames, mean: stats.frames ? stats.sum / stats.frames : 0,
+            p50: h[Math.floor(h.length * 0.5)] || 0, p95: h[Math.floor(h.length * 0.95)] || 0, max: stats.max,
+          };
+        };
+        if (q.has('stats')) {
+          setInterval(function () {
+            var s = window.__igStats(), el = document.getElementById('igstats');
+            if (!el) {
+              el = document.createElement('pre');
+              el.id = 'igstats';
+              el.style.cssText = 'position:fixed;left:8px;top:120px;z-index:9;margin:0;color:#fff;font:16px monospace;background:#000';
+              document.body.appendChild(el);
+            }
+            el.textContent = 'cap ' + s.fps + ' n ' + s.frames + '\nmean ' + s.mean.toFixed(2) + ' p50 ' + s.p50.toFixed(2) +
+              '\np95 ' + s.p95.toFixed(2) + ' max ' + s.max.toFixed(1);
+          }, 1000);
+        }
+
+        if (q.get('gl') !== 'orig') {
+          var getContext = HTMLCanvasElement.prototype.getContext;
+          HTMLCanvasElement.prototype.getContext = function (type, attrs) {
+            if (type === 'webgl2' || type === 'webgl') {
+              attrs = Object.assign({}, attrs, {
+                antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false, powerPreference: 'low-power',
+              });
+            }
+            return getContext.call(this, type, attrs);
+          };
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

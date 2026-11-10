@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { useFrame, useThree } from "@react-three/fiber";
 import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
 
 /**
@@ -10,7 +11,28 @@ import { ShaderGradientCanvas, ShaderGradient } from "@shadergradient/react";
  *
  * The moving warm gradient is FOUNDER-LOCKED. These params must stay in lockstep
  * with Background.jsx. Do not change either without changing both.
+ *
+ * What this page adds around it is cost only, never look (app repo docs/TECH.md, "Gradient
+ * performance"): the frame governor in gradient.html (30 fps, pause with no jump, a cheaper GL context)
+ * and the build-time shader trims in vite.gradient.config.js.
  */
+
+// Test hook, inert unless window.__igFreezeT is a number (gradient.html sets it from ?freeze=<s>): pins the
+// shader's time so a frame can be captured and compared pixel for pixel. Runs after the gradient's own
+// time update (priority 0) and before the composer draws (priority 1).
+function FreezeHook() {
+  const scene = useThree((s) => s.scene);
+  useFrame(() => {
+    const t = window.__igFreezeT;
+    if (typeof t !== "number" || !Number.isFinite(t)) return;
+    scene.traverse((o) => {
+      const u = o.material && o.material.userData && o.material.userData.uTime;
+      if (u) u.value = t;
+    });
+  }, 0.5);
+  return null;
+}
+
 function GradientOnly() {
   return (
     <Suspense fallback={null}>
@@ -47,6 +69,7 @@ function GradientOnly() {
           rotationY={0}
           rotationZ={-60}
         />
+        <FreezeHook />
       </ShaderGradientCanvas>
     </Suspense>
   );
