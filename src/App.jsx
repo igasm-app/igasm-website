@@ -428,6 +428,7 @@ export default function App() {
           <a href="mailto:admin@igasm.in" data-cursor>admin@igasm.in</a>
           <a href="/desire/" data-cursor>How does your desire work?</a>
           <a href="/patterns/" data-cursor>How igasm decides a pattern is real</a>
+          <a href="/support/" data-cursor>Support</a>
           <a href="/privacy/" data-cursor>Privacy</a>
           <a href="/privacy/#consumer-health-data" data-cursor>Consumer Health Data Privacy Policy</a>
           <a href="/terms/" data-cursor>Terms</a>

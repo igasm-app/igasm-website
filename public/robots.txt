@@ -1,0 +1,8 @@
+# igasm.in
+# /learn/ and the invite page /c/ carry a noindex tag. They are left crawlable on purpose so search
+# engines can read that tag (a Disallow here would hide it). /learn/ stays noindex until a named
+# clinician has reviewed it.
+User-agent: *
+Allow: /
+
+Sitemap: https://igasm.in/sitemap.xml

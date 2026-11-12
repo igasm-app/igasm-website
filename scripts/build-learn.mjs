@@ -51,7 +51,7 @@ const CYCLE_GROUPS = new Set(['menstrual', 'follicular', 'ovulatory', 'luteal'])
 const STYLE = `
   :root { --bg: #140c0d; --fg: #fbead8; --muted: rgba(251,234,216,0.72); --subtle: rgba(251,234,216,0.5); --line: rgba(255,240,226,0.12); --amber: #e8985e; }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; background: var(--bg); }
   body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #3a1712 0%, var(--bg) 60%) fixed; color: var(--fg); font: 17px/1.6 Inter, system-ui, -apple-system, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 56px 20px 96px; }
   a { color: var(--amber); }
@@ -59,6 +59,7 @@ const STYLE = `
   h1 { font: 400 52px/1.05 "Instrument Serif", Georgia, serif; margin: 28px 0 8px; letter-spacing: -0.01em; }
   h2 { font: 400 30px/1.15 "Instrument Serif", Georgia, serif; margin: 48px 0 8px; }
   h3 { font-weight: 500; font-size: 17px; margin: 0 0 4px; color: var(--fg); }
+  h2.card-h { font: 500 17px/1.6 Inter, system-ui, -apple-system, sans-serif; margin: 0 0 4px; color: var(--fg); letter-spacing: normal; }
   p, li { color: var(--muted); }
   ul { padding-left: 20px; }
   .meta { color: var(--subtle); font-size: 15px; }
@@ -109,7 +110,11 @@ function page({ title, description, body, path }) {
 <!-- Out of search until a named clinician reviews it (scripts/build-learn.mjs). -->
 <meta name="robots" content="noindex, follow" />
 <link rel="canonical" href="https://igasm.in${path}" />
-<link rel="icon" href="/favicon.png" />
+<meta name="theme-color" content="#140c0d" />
+<meta name="color-scheme" content="dark" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -119,7 +124,7 @@ function page({ title, description, body, path }) {
 <body>
 <main>
 ${body}
-  <footer>&copy; 2026 igasm. <a href="/learn/">Learn</a> &middot; <a href="/patterns/">How igasm decides a pattern is real</a> &middot; <a href="/desire/">How does your desire work?</a> &middot; <a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a></footer>
+  <footer>&copy; 2026 igasm. <a href="/learn/">Learn</a> &middot; <a href="/patterns/">How igasm decides a pattern is real</a> &middot; <a href="/desire/">How does your desire work?</a> &middot; <a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a> &middot; <a href="/support/">Support</a></footer>
 </main>
 </body>
 </html>
@@ -134,7 +139,7 @@ const dots = (e) => {
 function card(c) {
   const ev = c.evidence ? `${dots(c.evidence)} ${EVIDENCE[c.evidence]} &middot; ` : '';
   return `  <article class="card" id="${esc(c.id)}">
-    <h3>${esc(c.title)}</h3>
+    <h2 class="card-h">${esc(c.title)}</h2>
     <p>${esc(c.body)}</p>
     <p class="src">${ev}Source: <a href="${esc(c.url)}" rel="noopener">${esc(c.source)}</a></p>
   </article>`;

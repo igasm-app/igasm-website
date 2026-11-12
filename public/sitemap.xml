@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Indexable pages only. /learn/ (noindex until clinician review) and /c/ (invite links) are left out on purpose. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://igasm.in/</loc></url>
+  <url><loc>https://igasm.in/desire/</loc></url>
+  <url><loc>https://igasm.in/patterns/</loc></url>
+  <url><loc>https://igasm.in/support/</loc></url>
+  <url><loc>https://igasm.in/privacy/</loc></url>
+  <url><loc>https://igasm.in/terms/</loc></url>
+  <url><loc>https://igasm.in/delete/</loc></url>
+</urlset>
