@@ -70,3 +70,7 @@ See `SKILLS.md` for the seven founder-provided design repos (three governance sk
 ## Repo
 
 `github.com/igasm-app/igasm-website` (branch `main`).
+
+## Invite links (igasm.in/c#CODE)
+
+`c/index.html` + `src/invite.jsx` (a second Vite entry, built to `dist/c/index.html`). The app shares `https://igasm.in/c#K7Q2-M9XA` (a room code) or `https://igasm.in/c#<24-character invite code>`; any case or grouping works (`src/lib/inviteCode.js` mirrors the app's `features/partners/codeShape.ts`). The code lives only in the URL fragment, which browsers never send to a server; the page makes no request with it, logs nothing, has no analytics, sends no referrer, and is `noindex`. It offers "Open in igasm" (`igasm://rooms/join?code=CODE`, the app's one code box) and, below, the code in upper-case groups of four with a Copy button and the way to enter it by hand. Content-free: no names, nothing about the room.
