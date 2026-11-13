@@ -90,9 +90,16 @@ Fixed (branch `web-audit`):
 
 Left (needs the founder or a later lane):
 - www.igasm.in: DNS points at Vercel, but the domain is not added to the Vercel project, so https://www.igasm.in fails TLS (certificate is for igasm.in only). Add `www.igasm.in` in Vercel, Domains, set to redirect to igasm.in.
-- No og:image or twitter:image anywhere: shared links show a text-only card. Needs a designed 1200x630 share card.
+- No og:image or twitter:image anywhere: shared links showed a text-only card. Fixed 2026-11-13 (lane webpolish), see "Share image" below.
 - Fonts load from Google Fonts (disclosed now in the privacy policy). Self-hosting the same Instrument Serif and Inter files would remove the third party; that touches how the locked wordmark's font loads, so it waits for the founder.
 - The gradient chunk is about 1 MB (254 KB gzip), lazy-loaded after first paint; it is the locked gradient, so it stays.
 - /privacy and /privacy/ (and the other pages) both answer 200; canonical tags point to the slash form, which is enough for search engines.
-- Learn hub (noindex): several DOI, Europe PMC and CDC links answer 403 to scripts (bot walls, they open in a browser); one source is a commercial menstrual-cup brand blog (/learn/your-period/), worth replacing before a clinician review.
+- Learn hub (noindex): several DOI, Europe PMC and CDC links answer 403 to scripts (bot walls, they open in a browser); one source was a commercial menstrual-cup brand blog (/learn/your-period/); fixed 2026-11-13 (lane webpolish): the card now cites the peer-reviewed review Cetera et al. 2025, Women's Health 21, doi:10.1177/17455057241305072, changed in the app's `cycleGuide.ts` and regenerated here.
 - Not on igasm.in: no `apple-app-site-association` or `assetlinks.json` (the invite page opens the app by its custom scheme, so none is needed today).
+
+## Share image (2026-11-13, lane webpolish)
+
+`public/og.jpg` (1200x630 JPEG, about 115 KB) is the share card for every indexed page (home, desire, patterns, support, privacy, terms, delete): `og:image` (absolute https://igasm.in/og.jpg) with type, width, height and alt, plus `twitter:card` `summary_large_image`, `twitter:image` and its alt. The learn pages, /c and the 404 are noindex and carry none.
+
+It is a still of the site itself, not a new design: the built site rendered in headless Chrome at 1200x630 (2x), with the locked ShaderGradient and the locked Instrument Serif light-reveal wordmark exactly as they ship, and the hero's own first line, "Your intimacy, finally understood." The frame was chosen from 24 captures 2.5 s apart for the warmest gradient with no plane edge in a corner. Only the capture hides the nav, eyebrow, form, scroll cue and the wordmark's blurred glow (headless Chrome draws it as banded rings), centres the block and enlarges the line so it reads at thumbnail size. To redo it: `scripts/capture-og.mjs` (the recipe is in its header).
+
