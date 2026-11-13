@@ -74,3 +74,25 @@ See `SKILLS.md` for the seven founder-provided design repos (three governance sk
 ## Invite links (igasm.in/c#CODE)
 
 `c/index.html` + `src/invite.jsx` (a second Vite entry, built to `dist/c/index.html`). The app shares `https://igasm.in/c#K7Q2-M9XA` (a room code) or `https://igasm.in/c#<24-character invite code>`; any case or grouping works (`src/lib/inviteCode.js` mirrors the app's `features/partners/codeShape.ts`). The code lives only in the URL fragment, which browsers never send to a server; the page makes no request with it, logs nothing, has no analytics, sends no referrer, and is `noindex`. It offers "Open in igasm" (`igasm://rooms/join?code=CODE`, the app's one code box) and, below, the code in upper-case groups of four with a Copy button and the way to enter it by hand. Content-free: no names, nothing about the room.
+
+## Live audit (2026-11-13, lane webaudit)
+
+Audited the live https://igasm.in and every page it links (home, privacy, terms, support, delete, desire, patterns, invite /c, the noindex learn hub, the 404) with headless Chrome at 375 px (mobile emulation) and 1440 px, plus a crawler over every internal and external link. Content was checked against the app's code and `docs/PRIVACY-LEGAL.md`, `STORE-LISTING.md` and `LAUNCH-READINESS.md` in the app repo.
+
+Clean: every internal page and asset returns 200; the 404 page is branded and noindex; no console errors on any page; no horizontal overflow at 375 px; one h1 per page, `lang` set, no unlabelled inputs, no images without alt; titles, meta descriptions, canonical, og and twitter tags on every indexable page; robots.txt and sitemap.xml correct (learn and /c noindex, crawlable, out of the sitemap); HSTS, nosniff, frame deny, referrer and permissions policy headers; no cookies or analytics on the site. Every claim on the app-facing pages (support, delete, privacy, terms, patterns thresholds) matches the app: server-readable, not end-to-end; encrypted in transit and at rest; export and erase in Settings; no ad or analytics SDK (Sentry has no DSN); 8-a-side and 90% range in `features/insights/factors.ts`; no fertility, contraception or diagnostic claim; nothing explicit on indexable pages. Apple's Support URL (/support/, with a contact) and Google's account-deletion URL (/delete/, in-app and email routes, what is erased) both meet the store requirements.
+
+Fixed (branch `web-audit`):
+- /desire/ cited Brotto and Graham (2021) through an eprints .docx that returns 401; it now links the published DOI, as the learn hub already does.
+- /delete/ said "tap Erase everything, then Erase"; the app's final step is now a hold ("Hold to erase everything", after the app lock if one is set).
+- Privacy: the 45-day removal job was described as "being built"; it is live (migration `20261101000003`, daily, 30 days). RevenueCat is named as the subscription manager (account id and status only). New section 13, "This website": no cookies or analytics, what the waitlist keeps (email, source, referrer) and how to remove it, Vercel hosting and Google Fonts receive the IP address, the invite code never leaves the browser.
+- Home "Private" vows: "unreadable in between" implied more than transit and at-rest encryption; it now says the servers can read the data to find patterns (D3). "Never shared ... not to anyone" now reads "not to anyone you did not choose" (a linked partner and processors).
+- The "back to igasm" link on the static pages is now a 39 px tall tap target (was 19 px).
+
+Left (needs the founder or a later lane):
+- www.igasm.in: DNS points at Vercel, but the domain is not added to the Vercel project, so https://www.igasm.in fails TLS (certificate is for igasm.in only). Add `www.igasm.in` in Vercel, Domains, set to redirect to igasm.in.
+- No og:image or twitter:image anywhere: shared links show a text-only card. Needs a designed 1200x630 share card.
+- Fonts load from Google Fonts (disclosed now in the privacy policy). Self-hosting the same Instrument Serif and Inter files would remove the third party; that touches how the locked wordmark's font loads, so it waits for the founder.
+- The gradient chunk is about 1 MB (254 KB gzip), lazy-loaded after first paint; it is the locked gradient, so it stays.
+- /privacy and /privacy/ (and the other pages) both answer 200; canonical tags point to the slash form, which is enough for search engines.
+- Learn hub (noindex): several DOI, Europe PMC and CDC links answer 403 to scripts (bot walls, they open in a browser); one source is a commercial menstrual-cup brand blog (/learn/your-period/), worth replacing before a clinician review.
+- Not on igasm.in: no `apple-app-site-association` or `assetlinks.json` (the invite page opens the app by its custom scheme, so none is needed today).

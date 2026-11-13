@@ -28,7 +28,7 @@
   body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #3a1712 0%, var(--bg) 60%) fixed; color: var(--fg); font: 17px/1.6 Inter, system-ui, -apple-system, sans-serif; }
   main { max-width: 720px; margin: 0 auto; padding: 56px 20px 96px; }
   a { color: var(--amber); }
-  .back { font-size: 15px; text-decoration: none; }
+  .back { font-size: 15px; text-decoration: none; display: inline-block; padding: 10px 0; }
   h1 { font: 400 52px/1.05 "Instrument Serif", Georgia, serif; margin: 28px 0 8px; letter-spacing: -0.01em; }
   h2 { font: 400 30px/1.15 "Instrument Serif", Georgia, serif; margin: 48px 0 8px; }
   h3 { font-weight: 500; font-size: 17px; margin: 24px 0 4px; }
@@ -44,7 +44,7 @@
 <main>
   <a class="back" href="/">&larr; igasm</a>
   <h1>Privacy Policy</h1>
-  <p class="meta">Last updated 1 November 2026. Applies to the igasm app (iOS and Android) and igasm.in.</p>
+  <p class="meta">Last updated 13 November 2026. Applies to the igasm app (iOS and Android) and igasm.in.</p>
 
   <p class="note">igasm has not launched yet. This policy describes exactly how the app handles data today. It will be reviewed by privacy counsel before launch, and any material change will be shown in the app before it applies to you.</p>
 
@@ -83,10 +83,10 @@
   </ul>
 
   <h2>5. Who processes it for us</h2>
-  <p>We use a small number of service providers, each under a contract that limits them to running igasm for us: our database and hosting provider (Supabase), the app stores and our subscription manager for purchases, and, only if you turn on AI insights, an AI provider under a no-training, no-retention agreement. We list each provider by name in the app before launch. We never sell or rent data, and we do not share it with data brokers or advertisers.</p>
+  <p>We use a small number of service providers, each under a contract that limits them to running igasm for us: our database and hosting provider (Supabase), Apple and Google for purchases, and our subscription manager (RevenueCat), which receives only your account identifier and subscription status, never what you log; and, only if you turn on AI insights, an AI provider under a no-training, no-retention agreement. We list each provider by name in the app before launch. We never sell or rent data, and we do not share it with data brokers or advertisers.</p>
 
   <h2>6. How long we keep it</h2>
-  <p>As long as your account exists. When you delete something it leaves your timeline at once and is permanently removed from our systems within 45 days, and from backups on their normal rotation (the automatic removal job is being built and ships before launch). When you delete your account, everything about you is erased at once, including the record of the consent you gave. The same applies when you ask us to delete it by email; see <a href="/delete/">igasm.in/delete</a>.</p>
+  <p>As long as your account exists. When you delete something it leaves your timeline at once and is permanently removed from our systems within 45 days, and from backups on their normal rotation (a daily job erases deleted entries 30 days after you delete them). When you delete your account, everything about you is erased at once, including the record of the consent you gave. The same applies when you ask us to delete it by email; see <a href="/delete/">igasm.in/delete</a>.</p>
 
   <h2>7. Your rights</h2>
   <p>Wherever you live, you can access, export, correct and delete your data, and withdraw consent, from inside the app or by writing to us. If you are in the EU, UK or a similar jurisdiction, you also have the rights to restriction, objection and portability, and to complain to your data protection authority. US residents, including in Washington, Connecticut and Nevada, have the consumer health data rights their laws give them; we honor them for everyone. We respond within 30 days.</p>
@@ -112,6 +112,9 @@
     <li><strong>Who we share it with.</strong> Only the service providers in section 5, acting for us under contract, and a partner you linked, for what you chose to share. We do not sell consumer health data, and we have no affiliates that receive it.</li>
     <li><strong>Your rights.</strong> You can confirm what we hold and see it (Settings, then Export everything), export it, delete it, and withdraw consent, all inside the app with no request needed. You can also write to <a href="mailto:admin@igasm.in">admin@igasm.in</a>. If we decline a request, you can appeal by replying to our answer, and we respond to an appeal within 45 days; if you still disagree, you can contact your state attorney general.</li>
   </ul>
+
+  <h2 id="website">13. This website</h2>
+  <p>igasm.in has no cookies, no analytics and no advertising. If you join the waitlist, we keep your email address, which part of the page you joined from and the page that linked you here, in our database (Supabase), only to tell you when igasm launches. Write to <a href="mailto:admin@igasm.in">admin@igasm.in</a> and we remove it. The site is hosted by Vercel and its fonts are served by Google Fonts; like any web server, they receive your IP address and browser details to deliver the page. The invite page (igasm.in/c) never sends the code in its link to any server.</p>
 
   <footer>&copy; 2026 igasm. <a href="/">igasm.in</a> &middot; <a href="/support/">Support</a></footer>
 </main>
