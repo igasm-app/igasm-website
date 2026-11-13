@@ -372,8 +372,8 @@ export default function App() {
             <h2 className="big reveal">Private by design, <span className="accent">not a promise</span> you have to trust.</h2>
             <div className="vault reveal">
               <ul className="vault-grid">
-                <li className="vow-row"><span className="vow-n" aria-hidden="true">01</span><h3 className="vow-h">Encrypted in transit and at rest</h3><p className="vow-b">Sealed in transit and at rest, so it is unreadable in between.</p></li>
-                <li className="vow-row"><span className="vow-n" aria-hidden="true">02</span><h3 className="vow-h">Never sold, never shared</h3><p className="vow-b">Not to advertisers, not to anyone. There is no version of this where we sell you.</p></li>
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">01</span><h3 className="vow-h">Encrypted in transit and at rest</h3><p className="vow-b">Locked on the way and on our disks. Our servers can read it to find your patterns, and we say so.</p></li>
+                <li className="vow-row"><span className="vow-n" aria-hidden="true">02</span><h3 className="vow-h">Never sold, never shared</h3><p className="vow-b">Not to advertisers, not to data brokers, not to anyone you did not choose. There is no version of this where we sell you.</p></li>
                 <li className="vow-row"><span className="vow-n" aria-hidden="true">03</span><h3 className="vow-h">No trackers on intimate data</h3><p className="vow-b">Zero third-party ad or analytics SDKs touch what you log here.</p></li>
                 <li className="vow-row"><span className="vow-n" aria-hidden="true">04</span><h3 className="vow-h">Yours to take or erase</h3><p className="vow-b">Export everything or delete it for good, the moment you decide, no questions.</p></li>
               </ul>
